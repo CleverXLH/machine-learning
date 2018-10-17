@@ -3,12 +3,12 @@ data = [[0.697, 0.460, 1], [0.774, 0.376, 1], [0.634, 0.264, 1], [0.608, 0.318, 
 tmp=[]
 for i in data:
     tmp.append(i[:-1])
-X0 = np.array(tmp[:8])
-X1 = np.array(tmp[8:])
-u0 = np.mean(X0, axis=0).reshape((-1, 1))
-u1 = np.mean(X1, axis=0).reshape((-1, 1))
-cov0 = np.cov(X0, rowvar=False)
-cov1 = np.cov(X1, rowvar=False)
-Sw = np.mat(cov0 + cov1)
-W = Sw.I * (u0 - u1)
+X0 = np.array(tmp[:8]) #good
+X1 = np.array(tmp[8:])  #bad
+u0 = np.mean(X0, axis=0).reshape((-1, 1))  #x0's mean value
+u1 = np.mean(X1, axis=0).reshape((-1, 1))  #x1's mean value
+cov0 = np.cov(X0, rowvar=False)   #x0's covariance
+cov1 = np.cov(X1, rowvar=False)   #x0's covariance
+Sw = np.mat(cov0 + cov1)  #Sw=∑(x-u0)(x-u0).T+∑(x-u1)(x-u1).T
+W = Sw.I * (u0 - u1)   #W=Sw^(-1)(u0-u1)
 print W
