@@ -1,31 +1,53 @@
 import numpy as np
 from numpy import linalg
 
-x=np.array([[0.697,0.774,0.634,0.608,0.556,0.403,0.481,0.437,0.666,0.243,0.245,0.343,0.639,0.657,0.360,0.593,0.719],[0.460,0.376,0.264,0.318,0.215,0.237,0.149,0.211,0.091,0.267,0.057,0.099,0.161,0.198,0.370,0.042,0.103],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]])
+
+x=np.array(
+[[0.697 ,0.46  ,1   ],
+ [0.774 ,0.376 ,1   ],
+ [0.634 ,0.264 ,1   ],
+ [0.608 ,0.318 ,1   ],
+ [0.556 ,0.215 ,1   ],
+ [0.403 ,0.237 ,1   ],
+ [0.481 ,0.149 ,1   ],
+ [0.437 ,0.211 ,1   ],
+ [0.666 ,0.091 ,1   ],
+ [0.243 ,0.267 ,1   ],
+ [0.245 ,0.057 ,1   ],
+ [0.343 ,0.099 ,1   ],
+ [0.639 ,0.161 ,1   ],
+ [0.657 ,0.198 ,1   ],
+ [0.36  ,0.37  ,1   ],
+ [0.593 ,0.042 ,1   ],
+ [0.719 ,0.103 ,1   ]])
 y=np.array([1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0])
 
-beta = np.array([[1],[1],[1]])
-old_l = 0
-n=0
+#f(x)=wx+b
+
+beta = np.array([[1],[1],[1]]) #beta=(w;b)
+old_l = 0 #initialize log-likelihood
+
 
 while 1:
-    beta_T_x = np.dot(beta.T[0], x)
+    beta_T_x = np.dot(x,beta.T[0]) #p1(x;beta)
 
     cur_l = 0
     for i in range(17):
-        cur_l = cur_l + ( -y[i]*beta_T_x[i]+np.log(1+np.exp(beta_T_x[i])) )
+        cur_l = cur_l + ( -y[i]*beta_T_x[i]+np.log(1+np.exp(beta_T_x[i])) ) #l(w,b)=∑(-y*beta.T*x+ln(1+e^(beta.T*x)))
 
-    if np.abs(cur_l - old_l) <= 0.000001:
+    if np.abs(cur_l - old_l) <= 0.000001: #accuracy
         break
 
 
-
-    n=n+1
-    old_l = cur_l
+    old_l = cur_l #update the log-likelihood
     d1 = 0
     d2 = 0
     for i in range(17):
-        d1 = d1 - np.dot(np.array([x[:,i]]).T,( y[i]-(  np.exp(beta_T_x[i])/(1+np.exp(beta_T_x[i])) ) ))
-        d2 = d2 + np.dot(np.array([x[:,i]]).T,np.array([x[:,i]]).T.T) * (  np.exp(beta_T_x[i])/(1+np.exp(beta_T_x[i])) ) * (1-(  np.exp(beta_T_x[i])/(1+np.exp(beta_T_x[i])) ))
-    beta = beta - np.dot(linalg.inv(d2),d1)
+
+
+        d1 = d1 - np.dot(np.array([x[i, :]]), (y[i] - (np.exp(beta_T_x[i]) / (1 + np.exp(beta_T_x[i]))))) #beta'=-∑x(y-p1(x;beta))
+        d2 = d2 + np.dot(np.array([x[i, :]]).T, np.array([x[i, :]])) * (np.exp(beta_T_x[i]) / (1 + np.exp(beta_T_x[i]))) * (1 - (np.exp(beta_T_x[i]) / (1 + np.exp(beta_T_x[i]))))
+        #beta''=∑xx.Tp1(x;beta)(1-p1(x;beta))
+    beta = beta - np.dot(linalg.inv(d2), d1.T) #Newton method iteration formula
+
 print beta
